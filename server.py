@@ -13,7 +13,6 @@ MAORI_CODE = 0x0002
 GERMAN_CODE = 0x0003
 
 
-
 def get_time():
     time = datetime.datetime.now()
     year = str(time.year)
@@ -24,8 +23,12 @@ def get_time():
 
 
 def get_ports():
-    ports = input("Enter port numbers in following order: English, Te reo, German: ")
-    a, b, c = ports.split()
+    try:
+        ports = input("Enter three port numbers between 1024 and 64000 in following order: English, Te reo, German: ")
+        a, b, c = ports.split()
+    except ValueError:
+        print("Invalid amount of port number entered, program will terminate")
+        sys.exit()
     a, b, c = int(a), int(b), int(c)
     invalid = False
     for port in [a, b, c]:
@@ -33,7 +36,7 @@ def get_ports():
             invalid = True
     if a == b or a == c or b == c: invalid = True
     if invalid:
-        print("Invalid port numbers entered")
+        print("Invalid port numbers entered, program will terminate")
         sys.exit()
     else:
         return a, b, c
@@ -47,5 +50,5 @@ german_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 
 while True:
-
+    print("beep")
 

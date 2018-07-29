@@ -26,11 +26,12 @@ try:
     host_IP = socket.gethostbyname(entered_host)
 except socket.gaierror:
     print("Invalid hostname or IP address entered, program will terminate")
-
+    sys.exit()
 # Getting user to enter a port number to use
-port = int(input("Enter a port number to use between 1024 adn 64000: "))
+port = int(input("Enter a port number to use between 1024 and 64000: "))
 # Checking if the entered port number is valid
 if port < 1024 or port > 64000:
     print("Invalid port number entered, program will terminate")
     sys.exit()
 
+UDP_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)

@@ -42,13 +42,20 @@ def get_ports():
         return a, b, c
 
 
+# Getting the three port numbers from the user
 english_port, maori_port, german_port = get_ports()
-
+# Opening three UDP sockets
 english_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 maori_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 german_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+# Binding the three sockets to their ports
+try:
+    english_socket.bind(('', english_port))
+    maori_socket.bind(('', maori_port))
+    german_socket.bind(('', german_port))
+except socket.error:
+    print("Binding sockets to ports failed, program will terminate")
+    sys.exit()
 
 
-while True:
-    print("beep")
 

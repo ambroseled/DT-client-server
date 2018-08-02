@@ -1,5 +1,6 @@
 import socket
 import sys
+import struct
 
 # Defining constants
 MAGIC_NUMBER = 0x497E
@@ -36,4 +37,8 @@ if port < 1024 or port > 64000:
 
 UDP_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
+request_packet = bytearray(6)
 
+request_packet[0:1] = struct.pack(">I", MAGIC_NUMBER)
+request_packet[2:3] = struct.pack(">I", REQUEST_PACKET)
+request_packet[4:5] = struct.pack(">I", request_type)

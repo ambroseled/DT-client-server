@@ -26,11 +26,11 @@ def get_time():
     Getting the date and current time
     """
     time = datetime.datetime.now()
-    year = str(time.year)
-    month = str(time.month)
-    day = str(time.day)
-    hour = str(time.hour)
-    minute = str(time.minute)
+    year = time.year
+    month = time.month
+    day = time.day
+    hour = time.hour
+    minute = time.minute
     return [year, month, day, hour, minute]
 
 
@@ -68,12 +68,16 @@ def get_ports():
     are valid. IF the ports are valid they are returned, if the are invalid
     an error message is printed and the program exits
     """
+    print("-----------------------------")
+    print("-----------------------------")
     # Getting user to input the three ports
     try:
         ports = input("Enter three port numbers between 1024 and 64000 in following order: English, Te reo, German: ")
         a, b, c = ports.split()
     except ValueError:
+        print("*****************************")
         print("Invalid amount of port number entered, program will terminate")
+        print("*****************************")
         sys.exit()
     a, b, c = int(a), int(b), int(c)
     invalid = False
@@ -83,7 +87,9 @@ def get_ports():
             invalid = True
     if a == b or a == c or b == c: invalid = True
     if invalid:
+        print("*****************************")
         print("Invalid port numbers entered, program will terminate")
+        print("*****************************")
         sys.exit()
     else:
         return [a, b, c]
@@ -93,37 +99,37 @@ def decodePacket(pkt):
     Checking if the reciveved packet is valid and returning a
     corrosponding code if it is
     """
+    # Checking if any of the packet fields are invalid
     if len(pkt) != 6:
+        print("*****************************")
+        print("Packet is of invalid length and will be discarded")
+        print("*****************************")
         return 1
     elif ((pkt[0] << 8) + pkt[1]) != MAGIC_NUMBER:
-        return 2
+        print("*****************************")
+        print("Magic number is invalid, packet will be discarded")
+        print("*****************************")
+        return 1
     elif ((pkt[2] << 8) + pkt[3]) != REQUEST_PACKET:
-        return 3
-    elif ((pkt[4] << 8) + pkt[5]) not in [DATE_REQUEST or TIME_REQUEST]:
-        return 4
+        print("*****************************")
+        print("Packet type invalid, packet will be discarded")
+        print("*****************************")
+        return 1
+    elif ((pkt[4] << 8) + pkt[5]) != DATE_REQUEST and ((pkt[4] << 8) + pkt[5]) != TIME_REQUEST:
+        print("*****************************")
+        print("Request type invalid, packet will be discarded")
+        print("*****************************")
+        return 1
     else:
         return 0
 
-def printErrors(errorCode):
-    """
-    Prints an error message when an invalid packet is recevied
-    """
-    if errorCode == 1:
-        print("Packet is of invalid length and will be discarded")
-    elif errorCode == 2:
-        print("Magic number is invalid, packet will be discarded")
-    elif errorCode == 3:
-        print("Packet type invalid, packet will be discarded")
-    elif errorCode == 4:
-        print("Request type invalid, packet will be discarded")
-    else:
-        print("Packet is invalid and will be discarded")
 
 def getLang(sock, sockets):
     """
     Finds out what language the client wants to receive
     text in
     """
+
     if sock == sockets[0]:
         return 0x0001
     elif sock == sockets[1]:
@@ -138,11 +144,13 @@ def handlePacket(pkt, lang_code):
     """
     request = (pkt[4] << 8) + pkt[5]
     if request == 0x0001:
-        makeResponse(True, lang_code)
+        return makeResponse(True, lang_code)
     elif request == 0x0002:
-        makeResponse(False, lang_code)
+        return makeResponse(False, lang_code)
     else:
+        print("*****************************")
         print("Invalid request type, packet will be discarded")
+        print("*****************************")
         return None
 
 
@@ -155,6 +163,7 @@ def makeResponse(request_flag, lang_code):
         text = textual_date(time[0], time[1], time[2], lang_code)
     else:
         text = textual_time(time[3], time[4], lang_code)
+    if len(text) > 255: return None
     response = bytearray()
     response.extend(struct.pack(">H", MAGIC_NUMBER))
     response.extend(struct.pack(">H", RESPONSE_PACKET))
@@ -163,14 +172,13 @@ def makeResponse(request_flag, lang_code):
     response.extend(struct.pack(">H", ((time[1] << 8) + time[2])))
     response.extend(struct.pack(">H", ((time[3] << 8) + time[4])))
     encoded_text = text.encode()
-    response.extend(struct.pack(">H", (len(text) << 8) + encoded_text[0]))
+    response.extend(struct.pack(">H", (len(encoded_text) << 8) + encoded_text[0]))
     response.extend(encoded_text[1:])
-    print(response)
+    return response
 
 
 # Getting the three port numbers from the user
 english_port, maori_port, german_port = get_ports()
-sockets = [english_port, maori_port, german_port]
 # Opening three UDP sockets
 english_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 maori_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -181,20 +189,31 @@ try:
     maori_socket.bind(('', maori_port))
     german_socket.bind(('', german_port))
 except socket.error:
+    print("*****************************")
     print("Binding sockets to ports failed, program will terminate")
+    print("*****************************")
     sys.exit()
-
+sockets = [english_socket, maori_socket, german_socket]
 
 while True:
 
-    readable, writeable, exceps = select([english_socket, maori_socket, german_socket], [english_socket, maori_socket, german_socket], [])
-    if len(readable) != 0:
-        for sock in readable:
+    reads, writes, exceps = select([english_socket, maori_socket, german_socket], [english_socket, maori_socket, german_socket], [])
+    if len(reads) != 0:
+        for sock in reads:
             data, addr = sock.recvfrom(1024)
             valid = decodePacket(data)
             lang_code = getLang(sock, sockets)
-            if valid != 0:
-                printErrors(valid)
+            if valid == 1:
                 continue
             else:
+                print("-----------------------------")
+                print("Request packet received from {0}".format(addr))
                 response = handlePacket(data, lang_code)
+                if response:
+                    sock.sendto(response, addr)
+                    print("Response packet sent to {0}".format(addr))
+                    print("-----------------------------")
+                    print("-----------------------------")
+
+for sock in sockets:
+    socke.close()

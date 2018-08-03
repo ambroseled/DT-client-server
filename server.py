@@ -1,7 +1,8 @@
 import datetime
 import socket
 import sys
-
+from select import select
+import struct
 
 # Defining constants
 MAGIC_NUMBER = 0x497E
@@ -9,7 +10,6 @@ REQUEST_PACKET = 0x0001
 RESPONSE_PACKET = 0x0002
 DATE_REQUEST = 0x0001
 TIME_REQUEST = 0x0002
-REQUEST_PACKET_SIZE = 6
 ENGLISH_CODE = 0x0001
 MAORI_CODE = 0x0002
 GERMAN_CODE = 0x0003
@@ -31,7 +31,7 @@ def get_time():
     day = str(time.day)
     hour = str(time.hour)
     minute = str(time.minute)
-    return year, month, day, hour, minute
+    return [year, month, day, hour, minute]
 
 
 def textual_date(year, month, day, lang_code):
@@ -86,11 +86,91 @@ def get_ports():
         print("Invalid port numbers entered, program will terminate")
         sys.exit()
     else:
-        return a, b, c
+        return [a, b, c]
+
+def decodePacket(pkt):
+    """
+    Checking if the reciveved packet is valid and returning a
+    corrosponding code if it is
+    """
+    if len(pkt) != 6:
+        return 1
+    elif ((pkt[0] << 8) + pkt[1]) != MAGIC_NUMBER:
+        return 2
+    elif ((pkt[2] << 8) + pkt[3]) != REQUEST_PACKET:
+        return 3
+    elif ((pkt[4] << 8) + pkt[5]) not in [DATE_REQUEST or TIME_REQUEST]:
+        return 4
+    else:
+        return 0
+
+def printErrors(errorCode):
+    """
+    Prints an error message when an invalid packet is recevied
+    """
+    if errorCode == 1:
+        print("Packet is of invalid length and will be discarded")
+    elif errorCode == 2:
+        print("Magic number is invalid, packet will be discarded")
+    elif errorCode == 3:
+        print("Packet type invalid, packet will be discarded")
+    elif errorCode == 4:
+        print("Request type invalid, packet will be discarded")
+    else:
+        print("Packet is invalid and will be discarded")
+
+def getLang(sock, sockets):
+    """
+    Finds out what language the client wants to receive
+    text in
+    """
+    if sock == sockets[0]:
+        return 0x0001
+    elif sock == sockets[1]:
+        return 0x0002
+    else:
+        return 0x0003
+
+def handlePacket(pkt, lang_code):
+    """
+    Decodes recevied packet and calls makeRespone() to
+    create the response packet
+    """
+    request = (pkt[4] << 8) + pkt[5]
+    if request == 0x0001:
+        makeResponse(True, lang_code)
+    elif request == 0x0002:
+        makeResponse(False, lang_code)
+    else:
+        print("Invalid request type, packet will be discarded")
+        return None
+
+
+def makeResponse(request_flag, lang_code):
+    """
+    Creates a response packet
+    """
+    time = get_time()
+    if request_flag:
+        text = textual_date(time[0], time[1], time[2], lang_code)
+    else:
+        text = textual_time(time[3], time[4], lang_code)
+    response = bytearray()
+    response.extend(struct.pack(">H", MAGIC_NUMBER))
+    response.extend(struct.pack(">H", RESPONSE_PACKET))
+    response.extend(struct.pack(">H", lang_code))
+    response.extend(struct.pack(">H", time[0]))
+    response.extend(struct.pack(">H", ((time[1] << 8) + time[2])))
+    response.extend(struct.pack(">H", ((time[3] << 8) + time[4])))
+    encoded_text = text.encode()
+    response.extend(struct.pack(">H", (len(text) << 8) + encoded_text[0]))
+    response.extend(encoded_text[1:])
+    print(response)
 
 
 # Getting the three port numbers from the user
 english_port, maori_port, german_port = get_ports()
+sockets = [english_port, maori_port, german_port]
 # Opening three UDP sockets
 english_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 maori_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -103,3 +183,18 @@ try:
 except socket.error:
     print("Binding sockets to ports failed, program will terminate")
     sys.exit()
+
+
+while True:
+
+    readable, writeable, exceps = select([english_socket, maori_socket, german_socket], [english_socket, maori_socket, german_socket], [])
+    if len(readable) != 0:
+        for sock in readable:
+            data, addr = sock.recvfrom(1024)
+            valid = decodePacket(data)
+            lang_code = getLang(sock, sockets)
+            if valid != 0:
+                printErrors(valid)
+                continue
+            else:
+                response = handlePacket(data, lang_code)

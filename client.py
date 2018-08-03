@@ -19,7 +19,10 @@ request_type = input("Enter request choice, date or time: ")
 if request_type != "date" and request_type != "time":
     print("Invalid request choice, program will terminate")
     sys.exit()
-
+if request_type == "date":
+    request = 0x0001
+else:
+    request = 0x0002
 # Getting user to enter hostname or IP address of server
 entered_host = input("Enter the host IP in dotted decimal or the hostname: ")
 # Checking if entered hostname/IP is valid
@@ -34,11 +37,14 @@ port = int(input("Enter a port number to use between 1024 and 64000: "))
 if port < 1024 or port > 64000:
     print("Invalid port number entered, program will terminate")
     sys.exit()
+server = (host_IP, port)
+socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-UDP_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+request_packet = bytearray(3)
 
-request_packet = bytearray(6)
+request_packet[0:1] = struct.pack(">H", MAGIC_NUMBER)
+request_packet[2:3] = struct.pack(">H", REQUEST_PACKET)
+request_packet[4:5] = struct.pack(">H", request)
 
-request_packet[0:1] = struct.pack(">I", MAGIC_NUMBER)
-request_packet[2:3] = struct.pack(">I", REQUEST_PACKET)
-request_packet[4:5] = struct.pack(">I", request_type)
+
+socket.sendto(request_packet, server)

@@ -52,6 +52,7 @@ def handlePacket(pkt):
     print("Textual representation received: {0}".format(text.decode()))
     sys.exit()
 
+def main():
 
 # Getting user to enter a request type
 print("-----------------------------")
@@ -85,11 +86,13 @@ if port < 1024 or port > 64000:
     print("Invalid port number entered, program will terminate")
     print("*****************************")
     sys.exit()
+
+# Opening socket for communication with the server
 server = (host_IP, port)
 socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
+# Creating a request packet
 request_packet = bytearray(3)
-
 request_packet[0:1] = struct.pack(">H", MAGIC_NUMBER)
 request_packet[2:3] = struct.pack(">H", REQUEST_PACKET)
 request_packet[4:5] = struct.pack(">H", request)
@@ -99,10 +102,15 @@ socket.sendto(request_packet, server)
 print("-----------------------------")
 print("-----------------------------")
 print("Sent request packet to {0}".format(server))
+
+# Waiting for a response from the server
 while True:
-    reads, writes, exceps = select([socket], [socket], [], 1.0)
+    reads, writes, exceps = select([socket], [], [], 1.0)
     if reads == writes == exceps == []:
+        print("*****************************")
         print("Response too slow, program will terminate")
+        print("*****************************")
+        socket.close()
         sys.exit()
     elif len(reads) != 0:
         for sock in reads:

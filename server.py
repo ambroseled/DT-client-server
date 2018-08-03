@@ -129,7 +129,6 @@ def getLang(sock, sockets):
     Finds out what language the client wants to receive
     text in
     """
-
     if sock == sockets[0]:
         return 0x0001
     elif sock == sockets[1]:
@@ -142,6 +141,7 @@ def handlePacket(pkt, lang_code):
     Decodes recevied packet and calls makeRespone() to
     create the response packet
     """
+    # Getting the request type of the packet
     request = (pkt[4] << 8) + pkt[5]
     if request == 0x0001:
         return makeResponse(True, lang_code)
@@ -158,12 +158,14 @@ def makeResponse(request_flag, lang_code):
     """
     Creates a response packet
     """
+    # Getting the textual component of the response
     time = get_time()
     if request_flag:
         text = textual_date(time[0], time[1], time[2], lang_code)
     else:
         text = textual_time(time[3], time[4], lang_code)
     if len(text) > 255: return None
+    # Creating the response packet
     response = bytearray()
     response.extend(struct.pack(">H", MAGIC_NUMBER))
     response.extend(struct.pack(">H", RESPONSE_PACKET))
@@ -195,17 +197,22 @@ except socket.error:
     sys.exit()
 sockets = [english_socket, maori_socket, german_socket]
 
+# Waiting for a request from the client
 while True:
 
     reads, writes, exceps = select([english_socket, maori_socket, german_socket], [english_socket, maori_socket, german_socket], [])
     if len(reads) != 0:
+        # A request has been received
         for sock in reads:
             data, addr = sock.recvfrom(1024)
             valid = decodePacket(data)
             lang_code = getLang(sock, sockets)
+            # The received packet was invalid
             if valid == 1:
                 continue
             else:
+                # The received packet was valid and a response packet will be creted
+                # and sent
                 print("-----------------------------")
                 print("Request packet received from {0}".format(addr))
                 response = handlePacket(data, lang_code)
@@ -215,5 +222,6 @@ while True:
                     print("-----------------------------")
                     print("-----------------------------")
 
+# Closing all sockets
 for sock in sockets:
     socke.close()

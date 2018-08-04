@@ -140,7 +140,7 @@ def main():
     socket.sendto(request_packet, server)
     print("-----------------------------")
     print("-----------------------------")
-    print("Request packet sent to {0}".format(server))
+    print("Request packet sent to \033[1;35;40m{0}\033[0;32;40m".format(server))
     # Waiting for 1 second for response from the server
     while True:
         reads, writes, exceps = select([socket], [], [], 1.0)
@@ -153,7 +153,7 @@ def main():
         elif len(reads) != 0:
             for sock in reads:
                 pkt, address = sock.recvfrom(1024)
-                print("Response packet received from {0}".format(address))
+                print("Response packet received from \033[1;35;40m{0}\033[0;32;40m".format(address))
                 print("-----------------------------")
                 print("-----------------------------")
                 sock.close()

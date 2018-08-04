@@ -95,6 +95,10 @@ def get_ports():
         print("*****************************")
         sys.exit()
     else:
+        print("-----------------------------")
+        print("Port number \033[1;35;40m{0}\033[0;32;40m for text in English".format(a))
+        print("Port number \033[1;35;40m{0}\033[0;32;40m for text in Maori".format(b))
+        print("Port number \033[1;35;40m{0}\033[0;32;40m for text in German".format(c))
         return [a, b, c]
 
 
@@ -211,7 +215,7 @@ def main():
             for sock in reads:
                 data, address = sock.recvfrom(1024)
                 print("-----------------------------")
-                print("Request packet received from {0}".format(address))
+                print("Request packet received from \033[1;35;40m{0}\033[0;32;40m".format(address))
                 valid = decode_packet(data)
                 lang_code = get_lang(sock, sockets)
                 # The received packet was invalid
@@ -223,7 +227,7 @@ def main():
                     response = handle_packet(data, lang_code)
                     if response:
                         sock.sendto(response, address)
-                        print("Response packet sent to {0}".format(address))
+                        print("Response packet sent to \033[1;35;40m{0}\033[0;32;40m".format(address))
                         print("-----------------------------")
                         print("-----------------------------")
 

@@ -78,7 +78,7 @@ def get_ports():
         ports = input("Enter three port numbers between 1024 and 64000 in following order: English, Te reo, German: ")
         a, b, c = ports.split()
     except ValueError:
-        print("*****************************")
+        print("\033[1;31;40m*****************************")
         print("Invalid amount of port number entered, program will terminate")
         print("*****************************")
         sys.exit()
@@ -90,7 +90,7 @@ def get_ports():
             invalid = True
     if a == b or a == c or b == c: invalid = True
     if invalid:
-        print("*****************************")
+        print("\033[1;31;40m*****************************")
         print("Invalid port numbers entered, program will terminate")
         print("*****************************")
         sys.exit()
@@ -103,25 +103,15 @@ def decode_packet(pkt):
     Checking if the reciveved packet is valid and returning a
     corrosponding code if it is
     """
+    text = None
     # Checking if any of the packet fields are invalid
-    if len(pkt) != 6:
-        print("*****************************")
-        print("Packet is of invalid length and will be discarded")
-        print("*****************************")
-        return 1
-    elif ((pkt[0] << 8) + pkt[1]) != MAGIC_NUMBER:
-        print("*****************************")
-        print("Magic number is invalid, packet will be discarded")
-        print("*****************************")
-        return 1
-    elif ((pkt[2] << 8) + pkt[3]) != REQUEST_PACKET:
-        print("*****************************")
-        print("Packet type invalid, packet will be discarded")
-        print("*****************************")
-        return 1
-    elif ((pkt[4] << 8) + pkt[5]) != DATE_REQUEST and ((pkt[4] << 8) + pkt[5]) != TIME_REQUEST:
-        print("*****************************")
-        print("Request type invalid, packet will be discarded")
+    if len(pkt) != 6: text = "Packet is of invalid length"
+    elif ((pkt[0] << 8) + pkt[1]) != MAGIC_NUMBER: text = "Magic number is invalid,"
+    elif ((pkt[2] << 8) + pkt[3]) != REQUEST_PACKET: text = "Packet type invalid"
+    elif ((pkt[4] << 8) + pkt[5]) != DATE_REQUEST and ((pkt[4] << 8) + pkt[5]) != TIME_REQUEST: text = "Request type invalid"
+    if text:
+        print("\033[1;31;40m*****************************")
+        print("{0}, packet will be discarded".format(text))
         print("*****************************")
         return 1
     else:
@@ -153,7 +143,7 @@ def handle_packet(pkt, lang_code):
     elif request == 0x0002:
         return make_response(False, lang_code)
     else:
-        print("*****************************")
+        print("\033[1;31;40m*****************************")
         print("Invalid request type, packet will be discarded")
         print("*****************************")
         return None
@@ -200,7 +190,7 @@ def main():
         maori_socket.bind(('', maori_port))
         german_socket.bind(('', german_port))
     except socket.error:
-        print("*****************************")
+        print("\033[1;31;40m*****************************")
         print("Binding sockets to ports failed, program will terminate")
         print("*****************************")
         sys.exit()

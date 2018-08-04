@@ -34,7 +34,7 @@ def validatePacket(pkt):
     elif pkt[11] < 0 or pkt[11] > 59: text = "Invalid minute"
     elif len(pkt) != (13 + pkt[12]): text = "Invalid packet length"
     if text:
-        print("*****************************")
+        print("\033[1;31;40m*****************************")
         print("{0}, program will terminate".format(text))
         print("*****************************")
         sys.exit()
@@ -71,7 +71,7 @@ def getRequest():
     request_type = input("Enter request choice, date or time: ")
     # Checking if users request choice is valid
     if request_type != "date" and request_type != "time":
-        print("*****************************")
+        print("\033[1;31;40m*****************************")
         print("Invalid request choice, program will terminate")
         print("*****************************")
         sys.exit()
@@ -91,7 +91,7 @@ def getHost():
     try:
         return soc.gethostbyname(entered_host)
     except soc.gaierror:
-        print("*****************************")
+        print("\033[1;31;40m*****************************")
         print("Invalid hostname or IP address entered, program will terminate")
         print("*****************************")
         sys.exit()
@@ -104,7 +104,7 @@ def getPort():
     port = int(input("Enter a port number to use between 1024 and 64000: "))
     # Checking if the entered port number is valid
     if port < 1024 or port > 64000:
-        print("*****************************")
+        print("\033[1;31;40m*****************************")
         print("Invalid port number entered, program will terminate")
         print("*****************************")
         sys.exit()
@@ -139,7 +139,7 @@ def main():
     while True:
         reads, writes, exceps = select([socket], [], [], 1.0)
         if reads == writes == exceps == []:
-            print("*****************************")
+            print("\033[1;31;40m*****************************")
             print("Response too slow, program will terminate")
             print("*****************************")
             socket.close()

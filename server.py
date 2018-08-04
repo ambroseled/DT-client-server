@@ -1,3 +1,4 @@
+# Importing used modules
 import datetime
 import socket
 import sys
@@ -13,6 +14,7 @@ TIME_REQUEST = 0x0002
 ENGLISH_CODE = 0x0001
 MAORI_CODE = 0x0002
 GERMAN_CODE = 0x0003
+
 # Defining the months of the year in all three languages
 english_months = ["January", "February", "March", "April", "May", "June", "July", "August", "September",
                   "October", "November", "December"]
@@ -20,6 +22,7 @@ maori_months = ["Kohitātea", "Hui-tanguru", "Poutū-te-rangi", "Paenga-whāwhā
                 "Hōngongoi", "Here-turi-kōkā", "Mahuru", "Whiringa-ā-nuku", "Whiringa-ā-rangi", "Hakihea"]
 german_months = ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September",
                  "Oktober", "November", "Dezember"]
+
 
 def get_time():
     """
@@ -94,7 +97,8 @@ def get_ports():
     else:
         return [a, b, c]
 
-def decodePacket(pkt):
+
+def decode_packet(pkt):
     """
     Checking if the reciveved packet is valid and returning a
     corrosponding code if it is
@@ -124,7 +128,7 @@ def decodePacket(pkt):
         return 0
 
 
-def getLang(sock, sockets):
+def get_lang(sock, sockets):
     """
     Finds out what language the client wants to receive
     text in
@@ -136,7 +140,8 @@ def getLang(sock, sockets):
     else:
         return 0x0003
 
-def handlePacket(pkt, lang_code):
+
+def handle_packet(pkt, lang_code):
     """
     Decodes recevied packet and calls makeRespone() to
     create the response packet
@@ -144,9 +149,9 @@ def handlePacket(pkt, lang_code):
     # Getting the request type of the packet
     request = (pkt[4] << 8) + pkt[5]
     if request == 0x0001:
-        return makeResponse(True, lang_code)
+        return make_response(True, lang_code)
     elif request == 0x0002:
-        return makeResponse(False, lang_code)
+        return make_response(False, lang_code)
     else:
         print("*****************************")
         print("Invalid request type, packet will be discarded")
@@ -154,7 +159,7 @@ def handlePacket(pkt, lang_code):
         return None
 
 
-def makeResponse(request_flag, lang_code):
+def make_response(request_flag, lang_code):
     """
     Creates a response packet
     """
@@ -179,49 +184,55 @@ def makeResponse(request_flag, lang_code):
     return response
 
 
-# Getting the three port numbers from the user
-english_port, maori_port, german_port = get_ports()
-# Opening three UDP sockets
-english_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-maori_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-german_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-# Binding the three sockets to their ports
-try:
-    english_socket.bind(('', english_port))
-    maori_socket.bind(('', maori_port))
-    german_socket.bind(('', german_port))
-except socket.error:
-    print("*****************************")
-    print("Binding sockets to ports failed, program will terminate")
-    print("*****************************")
-    sys.exit()
-sockets = [english_socket, maori_socket, german_socket]
+def main():
+    """
+    Runs the program
+    """
+    # Getting the three port numbers from the user
+    english_port, maori_port, german_port = get_ports()
+    # Opening three UDP sockets
+    english_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    maori_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    german_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    # Binding the three sockets to their ports
+    try:
+        english_socket.bind(('', english_port))
+        maori_socket.bind(('', maori_port))
+        german_socket.bind(('', german_port))
+    except socket.error:
+        print("*****************************")
+        print("Binding sockets to ports failed, program will terminate")
+        print("*****************************")
+        sys.exit()
+    sockets = [english_socket, maori_socket, german_socket]
 
-# Waiting for a request from the client
-while True:
-
-    reads, writes, exceps = select([english_socket, maori_socket, german_socket], [english_socket, maori_socket, german_socket], [])
-    if len(reads) != 0:
-        # A request has been received
-        for sock in reads:
-            data, addr = sock.recvfrom(1024)
-            valid = decodePacket(data)
-            lang_code = getLang(sock, sockets)
-            # The received packet was invalid
-            if valid == 1:
-                continue
-            else:
-                # The received packet was valid and a response packet will be creted
-                # and sent
+    # Waiting for a request from the client
+    while True:
+        reads, writes, exceps = select(sockets, sockets, [])
+        if len(reads) != 0:
+            # A request has been received
+            for sock in reads:
+                data, address = sock.recvfrom(1024)
                 print("-----------------------------")
-                print("Request packet received from {0}".format(addr))
-                response = handlePacket(data, lang_code)
-                if response:
-                    sock.sendto(response, addr)
-                    print("Response packet sent to {0}".format(addr))
-                    print("-----------------------------")
-                    print("-----------------------------")
+                print("Request packet received from {0}".format(address))
+                valid = decode_packet(data)
+                lang_code = get_lang(sock, sockets)
+                # The received packet was invalid
+                if valid == 1:
+                    continue
+                else:
+                    # The received packet was valid
+                    # The response packet is now sent to the client
+                    response = handle_packet(data, lang_code)
+                    if response:
+                        sock.sendto(response, address)
+                        print("Response packet sent to {0}".format(address))
+                        print("-----------------------------")
+                        print("-----------------------------")
 
-# Closing all sockets
-for sock in sockets:
-    socke.close()
+    # Closing all sockets
+    for sock in sockets:
+        socke.close()
+
+
+main()

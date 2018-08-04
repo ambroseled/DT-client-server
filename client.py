@@ -101,14 +101,20 @@ def getPort():
     """
     Gets the user to input the port number to use
     """
-    port = int(input("Enter a port number to use between 1024 and 64000: "))
-    # Checking if the entered port number is valid
-    if port < 1024 or port > 64000:
+    try:
+        port = int(input("Enter a port number to use between 1024 and 64000: "))
+        # Checking if the entered port number is valid
+        if port < 1024 or port > 64000:
+            print("\033[1;31;40m*****************************")
+            print("Invalid port number entered, program will terminate")
+            print("*****************************")
+            sys.exit()
+        return port
+    except ValueError:
         print("\033[1;31;40m*****************************")
-        print("Invalid port number entered, program will terminate")
+        print("Invalid type entered port number must be an integer, program will terminate")
         print("*****************************")
         sys.exit()
-    return port
 
 
 def main():

@@ -160,6 +160,13 @@ def make_response(request_flag, lang_code):
     else:
         text = textual_time(time[3], time[4], lang_code)
     if len(text) > 255: return None
+    # Outputting data on the request packet
+    request = "time"
+    if request_flag: request = "date"
+    lang = "English"
+    if lang_code == MAORI_CODE: lang = "Maori"
+    elif lang_code == GERMAN_CODE: lang = "German"
+    print("Client requested the {0} in {1}".format(request, lang))
     # Creating the response packet
     response = bytearray()
     response.extend(struct.pack(">H", MAGIC_NUMBER))

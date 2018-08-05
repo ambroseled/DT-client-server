@@ -57,11 +57,20 @@ def textual_time(hour, minute, lang_code):
     the passed language code
     """
     if lang_code == ENGLISH_CODE:
-        time_text = "The current time is {0}:{1}".format(hour, minute)
+        if minute < 10:
+           time_text = "The current time is {0}:0{1}".format(hour, minute)
+        else:
+            time_text = "The current time is {0}:{1}".format(hour, minute)
     elif lang_code == MAORI_CODE:
-        time_text = "Ko te wa o tenei wa {0}:{1}".format(hour, minute)
+        if minute < 10:
+            time_text = "Ko te wa o tenei wa {0}:0{1}".format(hour, minute)
+        else:
+            time_text = "Ko te wa o tenei wa {0}:{1}".format(hour, minute)
     else:
-        time_text = "Die Uhrzeit ist {0}:{1}".format(hour, minute)
+        if minute < 10:
+            time_text = "Die Uhrzeit ist {0}:0{1}".format(hour, minute)
+        else:
+            time_text = "Die Uhrzeit ist {0}:{1}".format(hour, minute)
     return time_text
 
 

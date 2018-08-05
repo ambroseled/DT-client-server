@@ -50,7 +50,10 @@ def handlePacket(pkt):
     # Printing the information from the packet
     text = pkt[13:]
     date = "{0}:{1}:{2}".format(((pkt[6] << 8) + pkt[7]), pkt[8], pkt[9])
-    time = "{0}:{1}".format(pkt[10], pkt[11])
+    if pkt[11] < 10:
+        time = "{0}:0{1}".format(pkt[10], pkt[11])
+    else:
+          time = "{0}:{1}".format(pkt[10], pkt[11])
     print("The date is: {0}".format(date))
     print("The time is: {0}".format(time))
     print("Textual representation received: {0}".format(text.decode()))

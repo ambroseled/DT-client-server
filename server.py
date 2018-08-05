@@ -78,7 +78,7 @@ def get_ports():
         ports = input("Enter three port numbers between 1024 and 64000 in following order: English, Te reo, German: ")
         a, b, c = ports.split()
     except ValueError:
-        print("\033[1;31;40m*****************************")
+        print("*****************************")
         print("Invalid amount of port number entered, program will terminate")
         print("*****************************")
         sys.exit()
@@ -90,15 +90,15 @@ def get_ports():
             invalid = True
     if a == b or a == c or b == c: invalid = True
     if invalid:
-        print("\033[1;31;40m*****************************")
+        print("*****************************")
         print("Invalid port numbers entered, program will terminate")
         print("*****************************")
         sys.exit()
     else:
         print("-----------------------------")
-        print("Port number \033[1;35;40m{0}\033[0;32;40m for text in English".format(a))
-        print("Port number \033[1;35;40m{0}\033[0;32;40m for text in Maori".format(b))
-        print("Port number \033[1;35;40m{0}\033[0;32;40m for text in German".format(c))
+        print("Port number {0} for text in English".format(a))
+        print("Port number {0} for text in Maori".format(b))
+        print("Port number {0} for text in German".format(c))
         return [a, b, c]
 
 
@@ -114,7 +114,7 @@ def decode_packet(pkt):
     elif ((pkt[2] << 8) + pkt[3]) != REQUEST_PACKET: text = "Packet type invalid"
     elif ((pkt[4] << 8) + pkt[5]) != DATE_REQUEST and ((pkt[4] << 8) + pkt[5]) != TIME_REQUEST: text = "Request type invalid"
     if text:
-        print("\033[1;31;40m*****************************")
+        print("*****************************")
         print("{0}, packet will be discarded".format(text))
         print("*****************************")
         return 1
@@ -147,7 +147,7 @@ def handle_packet(pkt, lang_code):
     elif request == 0x0002:
         return make_response(False, lang_code)
     else:
-        print("\033[1;31;40m*****************************")
+        print("*****************************")
         print("Invalid request type, packet will be discarded")
         print("*****************************")
         return None
@@ -201,7 +201,7 @@ def main():
         maori_socket.bind(('', maori_port))
         german_socket.bind(('', german_port))
     except socket.error:
-        print("\033[1;31;40m*****************************")
+        print("*****************************")
         print("Binding sockets to ports failed, program will terminate")
         print("*****************************")
         sys.exit()
@@ -215,7 +215,7 @@ def main():
             for sock in reads:
                 data, address = sock.recvfrom(1024)
                 print("-----------------------------")
-                print("Request packet received from \033[1;35;40m{0}\033[0;32;40m".format(address))
+                print("Request packet received from {0}".format(address))
                 valid = decode_packet(data)
                 lang_code = get_lang(sock, sockets)
                 # The received packet was invalid
@@ -227,7 +227,7 @@ def main():
                     response = handle_packet(data, lang_code)
                     if response:
                         sock.sendto(response, address)
-                        print("Response packet sent to \033[1;35;40m{0}\033[0;32;40m".format(address))
+                        print("Response packet sent to {0}".format(address))
                         print("-----------------------------")
                         print("-----------------------------")
 

@@ -34,7 +34,7 @@ def validatePacket(pkt):
     elif pkt[11] < 0 or pkt[11] > 59: text = "Invalid minute"
     elif len(pkt) != (13 + pkt[12]): text = "Invalid packet length"
     if text:
-        print("\033[1;31;40m*****************************")
+        print("*****************************")
         print("{0}, program will terminate".format(text))
         print("*****************************")
         sys.exit()
@@ -71,7 +71,7 @@ def getRequest():
     request_type = input("Enter request choice, date or time: ")
     # Checking if users request choice is valid
     if request_type != "date" and request_type != "time":
-        print("\033[1;31;40m*****************************")
+        print("*****************************")
         print("Invalid request choice, program will terminate")
         print("*****************************")
         sys.exit()
@@ -91,7 +91,7 @@ def getHost():
     try:
         return soc.gethostbyname(entered_host)
     except soc.gaierror:
-        print("\033[1;31;40m*****************************")
+        print("*****************************")
         print("Invalid hostname or IP address entered, program will terminate")
         print("*****************************")
         sys.exit()
@@ -105,13 +105,13 @@ def getPort():
         port = int(input("Enter a port number to use between 1024 and 64000: "))
         # Checking if the entered port number is valid
         if port < 1024 or port > 64000:
-            print("\033[1;31;40m*****************************")
+            print("*****************************")
             print("Invalid port number entered, program will terminate")
             print("*****************************")
             sys.exit()
         return port
     except ValueError:
-        print("\033[1;31;40m*****************************")
+        print("*****************************")
         print("Invalid type entered port number must be an integer, program will terminate")
         print("*****************************")
         sys.exit()
@@ -140,12 +140,12 @@ def main():
     socket.sendto(request_packet, server)
     print("-----------------------------")
     print("-----------------------------")
-    print("Request packet sent to \033[1;35;40m{0}\033[0;32;40m".format(server))
+    print("Request packet sent to {0}".format(server))
     # Waiting for 1 second for response from the server
     while True:
         reads, writes, exceps = select([socket], [], [], 1.0)
         if reads == writes == exceps == []:
-            print("\033[1;31;40m*****************************")
+            print("*****************************")
             print("Response too slow, program will terminate")
             print("*****************************")
             socket.close()
@@ -153,7 +153,7 @@ def main():
         elif len(reads) != 0:
             for sock in reads:
                 pkt, address = sock.recvfrom(1024)
-                print("Response packet received from \033[1;35;40m{0}\033[0;32;40m".format(address))
+                print("Response packet received from [0]".format(address))
                 print("-----------------------------")
                 print("-----------------------------")
                 sock.close()

@@ -48,6 +48,17 @@ def handlePacket(pkt):
     # Checking the packet is valid
     validatePacket(pkt)
     # Printing the information from the packet
+    if ((pkt[4] << 8) + pkt[5]) == ENGLISH_CODE:
+        lang = "English"
+    elif ((pkt[4] << 8) + pkt[5]) == MAORI_CODE:
+        lang = "Maori"
+    else:
+        lang = "German"
+    print("Response from server:")
+    print("-----")
+    print("Magic number: {0}\nPacket type: {1}".format(hex((pkt[0] << 8) + pkt[1]), RESPONSE_PACKET))
+    print("Language code: {0}\nLength of text: {1}".format(lang, pkt[12]))
+    print("-----")
     text = pkt[13:]
     date = "{0}:{1}:{2}".format(((pkt[6] << 8) + pkt[7]), pkt[8], pkt[9])
     if pkt[11] < 10:

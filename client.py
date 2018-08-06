@@ -17,7 +17,7 @@ MAORI_CODE = 0x0002
 GERMAN_CODE = 0x0003
 
 
-def validatePacket(pkt):
+def validate_packet(pkt):
     """
     Checks that the received packet is valid, exits the program with an error
     message if the packet is invalid
@@ -40,13 +40,13 @@ def validatePacket(pkt):
         sys.exit()
 
 
-def handlePacket(pkt):
+def handle_packet(pkt):
     """
     Handles the response packet once it hs been received
     from the server
     """
     # Checking the packet is valid
-    validatePacket(pkt)
+    validate_packet(pkt)
     # Printing the information from the packet
     if ((pkt[4] << 8) + pkt[5]) == ENGLISH_CODE:
         lang = "English"
@@ -76,7 +76,7 @@ def handlePacket(pkt):
     print("-----------------------------")
     sys.exit()
 
-def getRequest():
+def get_request():
     """
     Gets the user to input the request type
     """
@@ -96,7 +96,7 @@ def getRequest():
         return 0x0002
 
 
-def getHost():
+def get_host():
     """
     Gets the user to input the host IP or address
     """
@@ -111,7 +111,7 @@ def getHost():
         sys.exit()
 
 
-def getPort():
+def get_port():
     """
     Gets the user to input the port number to use
     """
@@ -137,11 +137,11 @@ def main():
     :return:
     """
     # Getting the request type from the user
-    request = getRequest()
+    request = get_request()
     # Getting user to enter hostname or IP address of server
-    host_IP = getHost()
+    host_IP = get_host()
     # Getting user to enter a port number to use
-    port = getPort()
+    port = get_port()
     # Opening socket for communication with the server
     server = (host_IP, port)
     socket = soc.socket(soc.AF_INET, soc.SOCK_DGRAM)
@@ -167,11 +167,11 @@ def main():
         elif len(reads) != 0:
             for sock in reads:
                 pkt, address = sock.recvfrom(1024)
-                print("Response packet received from [0]".format(address))
+                print("Response packet received from {0}".format(address))
                 print("-----------------------------")
                 print("-----------------------------")
                 sock.close()
-                handlePacket(pkt)
+                handle_packet(pkt)
 
 
 main()

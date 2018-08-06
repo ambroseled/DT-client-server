@@ -121,7 +121,7 @@ def decode_packet(pkt):
     if len(pkt) != 6: text = "Packet is of invalid length"
     elif ((pkt[0] << 8) + pkt[1]) != MAGIC_NUMBER: text = "Magic number is invalid,"
     elif ((pkt[2] << 8) + pkt[3]) != REQUEST_PACKET: text = "Packet type invalid"
-    elif ((pkt[4] << 8) + pkt[5]) != DATE_REQUEST and ((pkt[4] << 8) + pkt[5]) != TIME_REQUEST: text = "Request type invalid"
+    elif ((pkt[4] << 8) + pkt[5]) not in [TIME_REQUEST, DATE_REQUEST]: text = "Request type invalid"
     if text:
         print("*****************************")
         print("{0}, packet will be discarded".format(text))

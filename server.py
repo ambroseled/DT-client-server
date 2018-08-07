@@ -218,7 +218,7 @@ def main():
 
     # Waiting for a request from the client
     while True:
-        reads, writes, exceps = select(sockets, sockets, [])
+        reads, writes, exceps = select(sockets, [], [], 15.0)
         if len(reads) != 0:
             # A request has been received
             for sock in reads:

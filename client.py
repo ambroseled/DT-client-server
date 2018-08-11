@@ -91,9 +91,9 @@ def get_request():
         sys.exit()
     # Returning the request type
     if request_type == "date":
-        return 0x0001
+        return DATE_REQUEST
     else:
-        return 0x0002
+        return TIME_REQUEST
 
 
 def get_host():

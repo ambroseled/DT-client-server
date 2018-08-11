@@ -5,6 +5,7 @@ import sys
 from select import select
 import struct
 
+
 # Defining constants
 MAGIC_NUMBER = 0x497E
 REQUEST_PACKET = 0x0001
@@ -14,6 +15,7 @@ TIME_REQUEST = 0x0002
 ENGLISH_CODE = 0x0001
 MAORI_CODE = 0x0002
 GERMAN_CODE = 0x0003
+
 
 # Defining the months of the year in all three languages
 english_months = ["January", "February", "March", "April", "May", "June", "July", "August", "September",
@@ -58,7 +60,7 @@ def textual_time(hour, minute, lang_code):
     """
     if lang_code == ENGLISH_CODE:
         if minute < 10:
-           time_text = "The current time is {0}:0{1}".format(hour, minute)
+            time_text = "The current time is {0}:0{1}".format(hour, minute)
         else:
             time_text = "The current time is {0}:{1}".format(hour, minute)
     elif lang_code == MAORI_CODE:
@@ -99,11 +101,13 @@ def get_ports():
             invalid = True
     if a == b or a == c or b == c: invalid = True
     if invalid:
+        # Output error message as at least one port was invalid
         print("*****************************")
         print("Invalid port numbers entered, program will terminate")
         print("*****************************")
         sys.exit()
     else:
+        # Output port numbers and their corresponding service
         print("-----------------------------")
         print("Port number {0} for text in English".format(a))
         print("Port number {0} for text in Maori".format(b))
@@ -123,6 +127,7 @@ def decode_packet(pkt):
     elif ((pkt[2] << 8) + pkt[3]) != REQUEST_PACKET: text = "Packet type invalid"
     elif ((pkt[4] << 8) + pkt[5]) not in [TIME_REQUEST, DATE_REQUEST]: text = "Request type invalid"
     if text:
+        # Output error message as the packet is invalid
         print("*****************************")
         print("{0}, packet will be discarded".format(text))
         print("*****************************")
@@ -156,6 +161,7 @@ def handle_packet(pkt, lang_code):
     elif request == 0x0002:
         return make_response(False, lang_code)
     else:
+        # Output error message as request type is invalid
         print("*****************************")
         print("Invalid request type, packet will be discarded")
         print("*****************************")
@@ -218,7 +224,7 @@ def main():
 
     # Waiting for a request from the client
     while True:
-        reads, writes, exceps = select(sockets, sockets, [])
+        reads, writes, exceps = select(sockets, [], [], 15.0)
         if len(reads) != 0:
             # A request has been received
             for sock in reads:

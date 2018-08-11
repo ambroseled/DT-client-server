@@ -34,6 +34,7 @@ def validate_packet(pkt):
     elif pkt[11] < 0 or pkt[11] > 59: text = "Invalid minute"
     elif len(pkt) != (13 + pkt[12]): text = "Invalid packet length"
     if text:
+        # Output an error message if an error was found
         print("*****************************")
         print("{0}, program will terminate".format(text))
         print("*****************************")
@@ -59,12 +60,13 @@ def handle_packet(pkt):
     print("Magic number: {0}\nPacket type: {1}".format(hex((pkt[0] << 8) + pkt[1]), RESPONSE_PACKET))
     print("Language code: {0}\nLength of text: {1}".format(lang, pkt[12]))
     print("-----")
+    # Getting time and date to output
     text = pkt[13:]
     date = "{0}:{1}:{2}".format(((pkt[6] << 8) + pkt[7]), pkt[8], pkt[9])
     if pkt[11] < 10:
         time = "{0}:0{1}".format(pkt[10], pkt[11])
     else:
-          time = "{0}:{1}".format(pkt[10], pkt[11])
+        time = "{0}:{1}".format(pkt[10], pkt[11])
     print("The date is: {0}".format(date))
     print("The time is: {0}".format(time))
     print("Textual representation received: {0}".format(text.decode()))
@@ -75,6 +77,7 @@ def handle_packet(pkt):
     print("-----------------------------")
     print("-----------------------------")
     sys.exit()
+
 
 def get_request():
     """

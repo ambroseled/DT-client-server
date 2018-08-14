@@ -1,6 +1,6 @@
 # Importing used modules
 import datetime
-import socket
+import socket as soc
 import sys
 from select import select
 import struct
@@ -58,6 +58,8 @@ def textual_time(hour, minute, lang_code):
     Converting the numerical time into the textual time dependent on
     the passed language code
     """
+    # If-Else structure is used below for when the minute is between 0 and 9,
+    # When this is true a leading zero is added to the minute field
     if lang_code == ENGLISH_CODE:
         if minute < 10:
             time_text = "The current time is {0}:0{1}".format(hour, minute)
@@ -76,43 +78,46 @@ def textual_time(hour, minute, lang_code):
     return time_text
 
 
-def get_ports():
+def process_ports(args):
     """
-    Getting three port numbers from the user and checking the ports
-    are valid. IF the ports are valid they are returned, if the are invalid
-    an error message is printed and the program exits
+    Processes the ports that were passed to the program from the
+    command line
     """
-    print("-----------------------------")
-    print("-----------------------------")
-    # Getting user to input the three ports
-    try:
-        ports = input("Enter three port numbers between 1024 and 64000 in following order: English, Te reo, German: ")
-        a, b, c = ports.split()
-    except ValueError:
-        print("*****************************")
-        print("Invalid amount of port number entered, program will terminate")
-        print("*****************************")
-        sys.exit()
-    a, b, c = int(a), int(b), int(c)
-    invalid = False
-    # Checking that the ports are valid
-    for port in [a, b, c]:
-        if port < 1024 or port > 64000:
-            invalid = True
-    if a == b or a == c or b == c: invalid = True
-    if invalid:
-        # Output error message as at least one port was invalid
-        print("*****************************")
-        print("Invalid port numbers entered, program will terminate")
-        print("*****************************")
-        sys.exit()
+    text = None
+    # Checking the correct number of arguments was passed
+    if len(args) != 3:
+        text = "Invalid number of ports entered"
     else:
-        # Output port numbers and their corresponding service
+        # Checking that the ports passed are all ints
+        try:
+            a, b, c = int(args[0]), int(args[1]), int(args[2])
+        except ValueError:
+            text = "Invalid port type"
+        # Checking that the ports are in the correct range
+        for port in [a, b, c]:
+            if port < 1024 or port > 64000:
+                text = "Invalid ports, ports must range from 1024 to 64000"
+        # Checking that the ports are all unique
+        if a == b or a == c or b == c:
+            text = "Invalid ports, ports must be unique"
+    if not text:
+        # Ports entered are valid server will now wait for requests
+        print("-----------------------------")
         print("-----------------------------")
         print("Port number {0} for text in English".format(a))
         print("Port number {0} for text in Maori".format(b))
         print("Port number {0} for text in German".format(c))
+        print("-----------------------------")
         return [a, b, c]
+    else:
+        # Ports entered are invalid, an error message is output
+        # along with instructions on how to use the server
+        print("*****************************")
+        print(text)
+        print("*****************************")
+        print("Usage: python3 server.py English_port Maori_port German_port")
+        print("Program will now exit")
+        sys.exit()
 
 
 def decode_packet(pkt):
@@ -127,26 +132,27 @@ def decode_packet(pkt):
     elif ((pkt[2] << 8) + pkt[3]) != REQUEST_PACKET: text = "Packet type invalid"
     elif ((pkt[4] << 8) + pkt[5]) not in [TIME_REQUEST, DATE_REQUEST]: text = "Request type invalid"
     if text:
-        # Output error message as the packet is invalid
+        # Outputting error message as the packet is invalid
         print("*****************************")
         print("{0}, packet will be discarded".format(text))
         print("*****************************")
         return 1
     else:
+        # Returning 0 as the packet is valid and processing can continue
         return 0
 
 
 def get_lang(sock, sockets):
     """
     Finds out what language the client wants to receive
-    text in
+    the text in
     """
     if sock == sockets[0]:
-        return 0x0001
+        return ENGLISH_CODE
     elif sock == sockets[1]:
-        return 0x0002
+        return MAORI_CODE
     else:
-        return 0x0003
+        return GERMAN_CODE
 
 
 def handle_packet(pkt, lang_code):
@@ -178,8 +184,8 @@ def make_response(request_flag, lang_code):
         text = textual_date(time[0], time[1], time[2], lang_code)
     else:
         text = textual_time(time[3], time[4], lang_code)
-    if len(text) > 255: return None
-    # Outputting data on the request packet
+    if len(text.encode('utf-8')) > 255: return None
+    # Outputting data of the request packet
     request = "time"
     if request_flag: request = "date"
     lang = "English"
@@ -194,35 +200,16 @@ def make_response(request_flag, lang_code):
     response.extend(struct.pack(">H", time[0]))
     response.extend(struct.pack(">H", ((time[1] << 8) + time[2])))
     response.extend(struct.pack(">H", ((time[3] << 8) + time[4])))
-    encoded_text = text.encode()
+    encoded_text = text.encode('utf-8')
     response.extend(struct.pack(">H", (len(encoded_text) << 8) + encoded_text[0]))
     response.extend(encoded_text[1:])
     return response
 
 
-def main():
+def wait(sockets):
     """
-    Runs the program
+    Server loops endlessly waiting fro requests from the client
     """
-    # Getting the three port numbers from the user
-    english_port, maori_port, german_port = get_ports()
-    # Opening three UDP sockets
-    english_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    maori_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    german_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    # Binding the three sockets to their ports
-    try:
-        english_socket.bind(('', english_port))
-        maori_socket.bind(('', maori_port))
-        german_socket.bind(('', german_port))
-    except socket.error:
-        print("*****************************")
-        print("Binding sockets to ports failed, program will terminate")
-        print("*****************************")
-        sys.exit()
-    sockets = [english_socket, maori_socket, german_socket]
-
-    # Waiting for a request from the client
     while True:
         reads, writes, exceps = select(sockets, [], [], 15.0)
         if len(reads) != 0:
@@ -231,14 +218,10 @@ def main():
                 data, address = sock.recvfrom(1024)
                 print("-----------------------------")
                 print("Request packet received from {0}".format(address))
-                valid = decode_packet(data)
-                lang_code = get_lang(sock, sockets)
-                # The received packet was invalid
-                if valid == 1:
-                    continue
-                else:
+                if decode_packet(data) == 0:
                     # The received packet was valid
-                    # The response packet is now sent to the client
+                    # A response packet is now sent to the client
+                    lang_code = get_lang(sock, sockets)
                     response = handle_packet(data, lang_code)
                     if response:
                         sock.sendto(response, address)
@@ -246,9 +229,35 @@ def main():
                         print("-----------------------------")
                         print("-----------------------------")
 
+
+def main():
+    """
+    Runs the program
+    """
+    args = sys.argv[1:]
+    # Getting the three port numbers from the user
+    english_port, maori_port, german_port = process_ports(args)
+    # Opening three UDP sockets
+    english_socket = soc.socket(soc.AF_INET, soc.SOCK_DGRAM)
+    maori_socket = soc.socket(soc.AF_INET, soc.SOCK_DGRAM)
+    german_socket = soc.socket(soc.AF_INET, soc.SOCK_DGRAM)
+    try:
+        # Binding the three sockets to their ports
+        english_socket.bind(('', english_port))
+        maori_socket.bind(('', maori_port))
+        german_socket.bind(('', german_port))
+    except soc.error:
+        # Outputting error message as socket binding failed
+        print("*****************************")
+        print("Binding sockets to ports failed, program will terminate")
+        print("*****************************")
+        sys.exit()
+    sockets = [english_socket, maori_socket, german_socket]
+    # Entering a loop to wait for requests from the client
+    wait(sockets)
     # Closing all sockets
     for sock in sockets:
-        socke.close()
+        sock.close()
 
 
 main()

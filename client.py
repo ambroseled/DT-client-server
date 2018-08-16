@@ -8,7 +8,7 @@
 
 ##################################
 # Usage:
-# python3 client.py request port host
+# python3 client.py request host port
 ##################################
 
 
@@ -101,8 +101,8 @@ def process_inputs(args):
         text = "Invalid number of inputs"
     else:
         request_type = args[0]
-        port = args[1]
-        host = args[2]
+        host = args[1]
+        port = args[2]
         # Checking if the request field is correct
         if request_type != "date" and request_type != "time":
             text = "Invalid request type, request must be either 'date' or 'time'"
@@ -129,7 +129,7 @@ def process_inputs(args):
         print(text)
         print("*****************************")
         # Outputting usage instructions
-        print("Usage: python3 client.py request port host")
+        print("Usage: python3 client.py request host port")
         print("Program will now exit")
         sys.exit()
     else:
@@ -139,6 +139,7 @@ def process_inputs(args):
 
 def wait(socket):
     """
+    Waiting for 1 second for the response from the packet
     """
     # Waiting for 1 second for response from the server
     reads, writes, exceps = select([socket], [], [], 1.0)

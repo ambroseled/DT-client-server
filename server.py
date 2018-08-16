@@ -41,7 +41,7 @@ german_months = ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "
 
 def get_time():
     """
-    Getting the date and current time
+    Getting the current date and current time
     """
     time = datetime.datetime.now()
     year = time.year
@@ -210,7 +210,7 @@ def make_response(request_flag, lang_code):
     print("-----------------------------")
     # Encoding the text to be sent to the client
     encoded_text = text.encode('utf-8')
-    # Creating the response packet
+    # Creating and filling the response packet
     response = bytearray(13 + len(encoded_text))
     response[0:2] = MAGIC_NUMBER.to_bytes(2, "big", signed=False)
     response[2:4] = RESPONSE_PACKET.to_bytes(2, "big", signed=False)
@@ -221,10 +221,12 @@ def make_response(request_flag, lang_code):
     response[10] = time[3]
     response[11] = time[4]
     response[12] = len(encoded_text)
+    # Adding the text to the end of the packet
     index = 13
     for i in encoded_text:
         response[index] = i
         index += 1
+    # Returning the packet to be sent
     return response
 
 
@@ -256,7 +258,7 @@ def wait(sockets):
 
 def main():
     """
-    Runs the program
+    Runs the server
     """
     args = sys.argv[1:]
     # Getting the three port numbers from the user

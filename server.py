@@ -1,3 +1,11 @@
+
+##################################
+# COSC264 Sockets Assignment 2018 - server.py
+# Author: Ambrose Ledbrook
+# ID: 79172462
+##################################
+
+
 # Importing used modules
 import datetime
 import socket as soc
@@ -122,8 +130,8 @@ def process_ports(args):
 
 def decode_packet(pkt):
     """
-    Checking if the reciveved packet is valid and returning a
-    corrosponding code if it is
+    Checking if the received packet is valid and returning a
+    corresponding code if it is
     """
     text = None
     # Checking if any of the packet fields are invalid
@@ -157,7 +165,7 @@ def get_lang(sock, sockets):
 
 def handle_packet(pkt, lang_code):
     """
-    Decodes recevied packet and calls makeRespone() to
+    Decodes received packet and calls makeRespone() to
     create the response packet
     """
     # Getting the request type of the packet
@@ -184,7 +192,9 @@ def make_response(request_flag, lang_code):
         text = textual_date(time[0], time[1], time[2], lang_code)
     else:
         text = textual_time(time[3], time[4], lang_code)
-    if len(text.encode('utf-8')) > 255: return None
+    if len(text.encode('utf-8')) > 255:
+        print("Textual field to long, packet will be discarded")
+        return None
     # Outputting data of the request packet
     request = "time"
     if request_flag: request = "date"
@@ -192,17 +202,21 @@ def make_response(request_flag, lang_code):
     if lang_code == MAORI_CODE: lang = "Maori"
     elif lang_code == GERMAN_CODE: lang = "German"
     print("Client requested the {0} in {1}".format(request, lang))
-    # Creating the response packet
-    response = bytearray()
-    response.extend(struct.pack(">H", MAGIC_NUMBER))
-    response.extend(struct.pack(">H", RESPONSE_PACKET))
-    response.extend(struct.pack(">H", lang_code))
-    response.extend(struct.pack(">H", time[0]))
-    response.extend(struct.pack(">H", ((time[1] << 8) + time[2])))
-    response.extend(struct.pack(">H", ((time[3] << 8) + time[4])))
+    print("-----------------------------")
+    # Encoding the text to be sent to the client
     encoded_text = text.encode('utf-8')
-    response.extend(struct.pack(">H", (len(encoded_text) << 8) + encoded_text[0]))
-    response.extend(encoded_text[1:])
+    # Creating the response packet
+    response = bytearray(9)
+    response[0:1] = MAGIC_NUMBER.to_bytes(2, "big", signed=False)
+    response[2:3] = RESPONSE_PACKET.to_bytes(2, "big", signed=False)
+    response[4:5] = lang_code.to_bytes(2, "big", signed=False)
+    response[6:7] = time[0].to_bytes(2, "big", signed=False)
+    response[8] = time[1]
+    response[9] = time[2]
+    response[10] = time[3]
+    response[11] = time[4]
+    response[12] = len(encoded_text)
+    response.extend(encoded_text)
     return response
 
 
@@ -217,7 +231,8 @@ def wait(sockets):
             for sock in reads:
                 data, address = sock.recvfrom(1024)
                 print("-----------------------------")
-                print("Request packet received from {0}".format(address))
+                print("Request packet received from {0}: ".format(address))
+                print(data)
                 if decode_packet(data) == 0:
                     # The received packet was valid
                     # A response packet is now sent to the client
@@ -225,7 +240,8 @@ def wait(sockets):
                     response = handle_packet(data, lang_code)
                     if response:
                         sock.sendto(response, address)
-                        print("Response packet sent to {0}".format(address))
+                        print("Response packet sent to {0}: ".format(address))
+                        print(response)
                         print("-----------------------------")
                         print("-----------------------------")
 
@@ -261,3 +277,8 @@ def main():
 
 
 main()
+
+
+##################################
+# End of server.py file
+##################################

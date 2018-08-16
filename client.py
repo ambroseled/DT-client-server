@@ -1,3 +1,11 @@
+
+##################################
+# COSC264 Sockets Assignment 2018 - client.py
+# Author: Ambrose Ledbrook
+# ID: 79172462
+##################################
+
+
 # Importing used modules
 import socket as soc
 import sys
@@ -33,7 +41,7 @@ def validate_packet(pkt):
     elif pkt[11] < 0 or pkt[11] > 59: text = "Invalid minute"
     elif len(pkt) != (13 + pkt[12]): text = "Invalid packet length"
     if text:
-        # Outputting an error message as an error was found
+        # Outputting an error message as an error was found in the packet
         print("*****************************")
         print("{0}, program will terminate".format(text))
         print("*****************************")
@@ -76,7 +84,6 @@ def handle_packet(pkt):
     print("-----------------------------")
     print("-----------------------------")
     sys.exit()
-
 
 
 def process_inputs(args):
@@ -137,15 +144,18 @@ def main():
     socket = soc.socket(soc.AF_INET, soc.SOCK_DGRAM)
     # Creating a request packet
     request_packet = bytearray(3)
-    request_packet[0:1] = struct.pack(">H", MAGIC_NUMBER)
-    request_packet[2:3] = struct.pack(">H", REQUEST_PACKET)
-    request_packet[4:5] = struct.pack(">H", request)
+    print(len(request_packet))
+    request_packet[0:1] = MAGIC_NUMBER.to_bytes(2, "big", signed=False)
+    request_packet[2:3] = REQUEST_PACKET.to_bytes(2, "big", signed=False)
+    request_packet[4:5] = request.to_bytes(2, "big", signed=False)
+    print(len(request_packet))
     # Sending request packet to the server
     socket.sendto(request_packet, server)
     print("-----------------------------")
     print("-----------------------------")
-    print("Request packet sent to {0}".format(server))
-
+    print("Request packet sent to {0}: ".format(server))
+    print(request_packet)
+    print("-----------------------------")
     # Waiting for 1 second for response from the server
     reads, writes, exceps = select([socket], [], [], 1.0)
     if reads == writes == exceps == []:
@@ -157,10 +167,11 @@ def main():
         socket.close()
         sys.exit()
     elif len(reads) != 0:
-        # Receiving response from teh server
+        # Receiving response from the server
         pkt, address = socket.recvfrom(1024)
         # Packet has been received from the server
-        print("Response packet received from {0}".format(address))
+        print("Response packet received from {0}: ".format(address))
+        print(pkt)
         print("-----------------------------")
         print("-----------------------------")
         # Closing the socket
@@ -169,3 +180,9 @@ def main():
 
 
 main()
+
+
+##################################
+# End of client.py file
+##################################
+

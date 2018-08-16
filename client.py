@@ -6,10 +6,15 @@
 ##################################
 
 
+##################################
+# Usage:
+# python3 client.py request port host
+##################################
+
+
 # Importing used modules
 import socket as soc
 import sys
-import struct
 from select import select
 
 
@@ -132,30 +137,9 @@ def process_inputs(args):
         return request, port, host
 
 
-def main():
+def wait(socket):
     """
-    Running the client program
     """
-    # Getting the inputs passed from the user
-    args = sys.argv[1:]
-    request, port, host = process_inputs(args)
-    server = (host, port)
-    # Opening socket to communicate with the server
-    socket = soc.socket(soc.AF_INET, soc.SOCK_DGRAM)
-    # Creating a request packet
-    request_packet = bytearray(3)
-    print(len(request_packet))
-    request_packet[0:1] = MAGIC_NUMBER.to_bytes(2, "big", signed=False)
-    request_packet[2:3] = REQUEST_PACKET.to_bytes(2, "big", signed=False)
-    request_packet[4:5] = request.to_bytes(2, "big", signed=False)
-    print(len(request_packet))
-    # Sending request packet to the server
-    socket.sendto(request_packet, server)
-    print("-----------------------------")
-    print("-----------------------------")
-    print("Request packet sent to {0}: ".format(server))
-    print(request_packet)
-    print("-----------------------------")
     # Waiting for 1 second for response from the server
     reads, writes, exceps = select([socket], [], [], 1.0)
     if reads == writes == exceps == []:
@@ -177,6 +161,31 @@ def main():
         # Closing the socket
         socket.close()
         handle_packet(pkt)
+
+
+def main():
+    """
+    Running the client program
+    """
+    # Getting the inputs passed from the user
+    args = sys.argv[1:]
+    request, port, host = process_inputs(args)
+    server = (host, port)
+    # Opening socket to communicate with the server
+    socket = soc.socket(soc.AF_INET, soc.SOCK_DGRAM)
+    # Creating a request packet
+    request_packet = bytearray(6)
+    request_packet[0:2] = MAGIC_NUMBER.to_bytes(2, "big", signed=False)
+    request_packet[2:4] = REQUEST_PACKET.to_bytes(2, "big", signed=False)
+    request_packet[4:6] = request.to_bytes(2, "big", signed=False)
+    # Sending request packet to the server
+    socket.sendto(request_packet, server)
+    print("-----------------------------")
+    print("-----------------------------")
+    print("Request packet sent to {0}: ".format(server))
+    print(request_packet)
+    print("-----------------------------")
+    wait(socket)
 
 
 main()

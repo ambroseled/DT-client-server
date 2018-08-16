@@ -6,12 +6,17 @@
 ##################################
 
 
+##################################
+# Usage:
+# python3 server.py English_port Maori_port German_port
+##################################
+
+
 # Importing used modules
 import datetime
 import socket as soc
 import sys
 from select import select
-import struct
 
 
 # Defining constants
@@ -206,17 +211,20 @@ def make_response(request_flag, lang_code):
     # Encoding the text to be sent to the client
     encoded_text = text.encode('utf-8')
     # Creating the response packet
-    response = bytearray(9)
-    response[0:1] = MAGIC_NUMBER.to_bytes(2, "big", signed=False)
-    response[2:3] = RESPONSE_PACKET.to_bytes(2, "big", signed=False)
-    response[4:5] = lang_code.to_bytes(2, "big", signed=False)
-    response[6:7] = time[0].to_bytes(2, "big", signed=False)
+    response = bytearray(13 + len(encoded_text))
+    response[0:2] = MAGIC_NUMBER.to_bytes(2, "big", signed=False)
+    response[2:4] = RESPONSE_PACKET.to_bytes(2, "big", signed=False)
+    response[4:6] = lang_code.to_bytes(2, "big", signed=False)
+    response[6:8] = time[0].to_bytes(2, "big", signed=False)
     response[8] = time[1]
     response[9] = time[2]
     response[10] = time[3]
     response[11] = time[4]
     response[12] = len(encoded_text)
-    response.extend(encoded_text)
+    index = 13
+    for i in encoded_text:
+        response[index] = i
+        index += 1
     return response
 
 

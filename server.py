@@ -206,8 +206,8 @@ def make_response(request_flag, lang_code):
     lang = "English"
     if lang_code == MAORI_CODE: lang = "Maori"
     elif lang_code == GERMAN_CODE: lang = "German"
-    print("Client requested the {0} in {1}".format(request, lang))
-    print("-----------------------------")
+    print("-----\nClient requested the {0} in {1}".format(request, lang))
+    print("-----")
     # Encoding the text to be sent to the client
     encoded_text = text.encode('utf-8')
     # Creating and filling the response packet

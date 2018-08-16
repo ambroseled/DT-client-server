@@ -70,7 +70,10 @@ def handle_packet(pkt):
     print("Response from server:")
     print("-----")
     print("Magic number: {0}\nPacket type: {1}".format(hex((pkt[0] << 8) + pkt[1]), RESPONSE_PACKET))
-    print("Language code: {0}\nLength of text: {1}".format(lang, pkt[12]))
+    print("Language code: {0}\nLength of text: {1}".format(((pkt[4] << 8) + pkt[5]), pkt[12]))
+    print("Year: {0}\nMonth: {1}\nDay: {2}".format(((pkt[6] << 8) + pkt[7]), pkt[8], pkt[9]))
+    print("Hour: {0}\nMinute: {1}".format(pkt[10], pkt[11]))
+    print("Length field: {0}".format(pkt[12]))
     print("-----")
     # Getting time and date to output
     text = pkt[13:]
@@ -81,7 +84,7 @@ def handle_packet(pkt):
         time = "{0}:{1}".format(pkt[10], pkt[11])
     print("The date is: {0}".format(date))
     print("The time is: {0}".format(time))
-    print("Textual representation received: {0}".format(text.decode()))
+    print("Textual representation in {0}: {1}".format(lang, text.decode()))
     # Exiting the program
     print("-----------------------------")
     print("-----------------------------")
@@ -114,10 +117,10 @@ def process_inputs(args):
         # Checking if the port field is correct
         try:
             port = int(port)
+            if port < 1024 or port > 64000:
+                text = "Invalid port, port must be in range 1024 to 64000"
         except ValueError:
             text = "Invalid port type, port must be an integer"
-        if port < 1024 or port > 64000:
-            text = "Invalid port, port must be in range 1024 to 64000"
         # Checking if the host field is correct
         try:
             host = soc.gethostbyname(host)

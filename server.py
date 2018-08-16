@@ -197,7 +197,11 @@ def make_response(request_flag, lang_code):
         text = textual_date(time[0], time[1], time[2], lang_code)
     else:
         text = textual_time(time[3], time[4], lang_code)
-    if len(text.encode('utf-8')) > 255:
+    # Encoding the text to be sent to the client
+    encoded_text = text.encode('utf-8')
+    text_length = len(encoded_text)
+    # Checking encoded text is of an allowed length
+    if text_length > 255:
         print("Textual field to long, packet will be discarded")
         return None
     # Outputting data of the request packet
@@ -208,8 +212,6 @@ def make_response(request_flag, lang_code):
     elif lang_code == GERMAN_CODE: lang = "German"
     print("-----\nClient requested the {0} in {1}".format(request, lang))
     print("-----")
-    # Encoding the text to be sent to the client
-    encoded_text = text.encode('utf-8')
     # Creating and filling the response packet
     response = bytearray(13 + len(encoded_text))
     response[0:2] = MAGIC_NUMBER.to_bytes(2, "big", signed=False)
@@ -220,7 +222,7 @@ def make_response(request_flag, lang_code):
     response[9] = time[2]
     response[10] = time[3]
     response[11] = time[4]
-    response[12] = len(encoded_text)
+    response[12] = text_length
     # Adding the text to the end of the packet
     index = 13
     for i in encoded_text:

@@ -232,9 +232,37 @@ def make_response(request_flag, lang_code):
     return response
 
 
+def create_sockets(english_port, maori_port, german_port):
+    """
+    Opens three UDP sockets and binds them tto the three ports passed
+    :param english_port: Port number to be bound to the socket used to get
+    a textual representation in English
+    :param maori_port:
+    :param german_port:
+    :return:
+    """
+    # Opening three UDP sockets
+    english_socket = soc.socket(soc.AF_INET, soc.SOCK_DGRAM)
+    maori_socket = soc.socket(soc.AF_INET, soc.SOCK_DGRAM)
+    german_socket = soc.socket(soc.AF_INET, soc.SOCK_DGRAM)
+    try:
+        # Binding the three sockets to their ports
+        english_socket.bind(('', english_port))
+        maori_socket.bind(('', maori_port))
+        german_socket.bind(('', german_port))
+    except soc.error:
+        # Outputting error message as socket binding failed
+        print("*****************************")
+        print("Binding sockets to ports failed, program will terminate")
+        print("*****************************")
+        sys.exit()
+    return[english_socket, maori_socket, german_socket]
+
+
 def wait(sockets):
     """
     Server loops endlessly waiting for requests from the client
+    :param sockets: List holding the three UDP sockets used by the server
     """
     while True:
         reads, writes, exceps = select(sockets, [], [], 15.0)
@@ -265,22 +293,8 @@ def main():
     args = sys.argv[1:]
     # Getting the three port numbers from the user
     english_port, maori_port, german_port = process_ports(args)
-    # Opening three UDP sockets
-    english_socket = soc.socket(soc.AF_INET, soc.SOCK_DGRAM)
-    maori_socket = soc.socket(soc.AF_INET, soc.SOCK_DGRAM)
-    german_socket = soc.socket(soc.AF_INET, soc.SOCK_DGRAM)
-    try:
-        # Binding the three sockets to their ports
-        english_socket.bind(('', english_port))
-        maori_socket.bind(('', maori_port))
-        german_socket.bind(('', german_port))
-    except soc.error:
-        # Outputting error message as socket binding failed
-        print("*****************************")
-        print("Binding sockets to ports failed, program will terminate")
-        print("*****************************")
-        sys.exit()
-    sockets = [english_socket, maori_socket, german_socket]
+    # Opening sockets
+    sockets = create_sockets(english_port, maori_port, german_port)
     # Entering a loop to wait for requests from the client
     wait(sockets)
     # Closing all sockets
@@ -288,7 +302,8 @@ def main():
         sock.close()
 
 
-main()
+if __name__ == "__main__":
+    main()
 
 
 ##################################

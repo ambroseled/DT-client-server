@@ -192,7 +192,8 @@ def main():
     wait(socket, request_packet, server)
 
 
-main()
+if __name__ == "__main__":
+    main()
 
 
 ##################################

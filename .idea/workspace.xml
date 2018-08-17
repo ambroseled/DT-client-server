@@ -1,11 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="6d6198f2-0b06-4a53-81d7-e717260b6bfc" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client.py" beforeDir="false" afterPath="$PROJECT_DIR$/client.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server.py" beforeDir="false" afterPath="$PROJECT_DIR$/server.py" afterDir="false" />
-    </list>
+    <list default="true" id="6d6198f2-0b06-4a53-81d7-e717260b6bfc" name="Default Changelist" comment="" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -45,14 +41,14 @@
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="py" value="11389" />
-          <entry key="txt" value="546" />
+          <entry key="py" value="11391" />
+          <entry key="txt" value="593" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="PLAIN_TEXT" value="546" />
-          <entry key="Python" value="11389" />
+          <entry key="PLAIN_TEXT" value="593" />
+          <entry key="Python" value="11391" />
         </counts>
       </usages-collector>
     </session>
@@ -75,10 +71,10 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/client.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="532">
-              <caret line="79" column="12" lean-forward="true" selection-start-line="79" selection-start-column="12" selection-end-line="79" selection-end-column="12" />
+            <state relative-caret-position="285">
+              <caret line="21" column="21" selection-start-line="21" selection-start-column="21" selection-end-line="21" selection-end-column="21" />
               <folding>
-                <marker date="1534463845737" expanded="true" signature="4882:6085" ph="..." />
+                <marker date="1534464124113" expanded="true" signature="4882:6085" ph="..." />
               </folding>
             </state>
           </provider>
@@ -290,7 +286,14 @@
       <option name="project" value="LOCAL" />
       <updated>1534399090830</updated>
     </task>
-    <option name="localTasksCounter" value="15" />
+    <task id="LOCAL-00015" summary="Small formatting changes">
+      <created>1534463936975</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1534463936975</updated>
+    </task>
+    <option name="localTasksCounter" value="16" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -341,7 +344,8 @@
     <MESSAGE value="Fixing packet creation" />
     <MESSAGE value="Commenting and checking requirements have been met" />
     <MESSAGE value="Adding to the data printed by the client" />
-    <option name="LAST_COMMIT_MESSAGE" value="Adding to the data printed by the client" />
+    <MESSAGE value="Small formatting changes" />
+    <option name="LAST_COMMIT_MESSAGE" value="Small formatting changes" />
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/server.py">
@@ -357,10 +361,10 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/client.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="532">
-          <caret line="79" column="12" lean-forward="true" selection-start-line="79" selection-start-column="12" selection-end-line="79" selection-end-column="12" />
+        <state relative-caret-position="285">
+          <caret line="21" column="21" selection-start-line="21" selection-start-column="21" selection-end-line="21" selection-end-column="21" />
           <folding>
-            <marker date="1534463845737" expanded="true" signature="4882:6085" ph="..." />
+            <marker date="1534464124113" expanded="true" signature="4882:6085" ph="..." />
           </folding>
         </state>
       </provider>

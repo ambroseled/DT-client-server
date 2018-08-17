@@ -234,7 +234,7 @@ def make_response(request_flag, lang_code):
 
 def wait(sockets):
     """
-    Server loops endlessly waiting fro requests from the client
+    Server loops endlessly waiting for requests from the client
     """
     while True:
         reads, writes, exceps = select(sockets, [], [], 15.0)

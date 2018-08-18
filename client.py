@@ -35,6 +35,7 @@ def validate_packet(pkt):
     message if the packet is invalid
     """
     text = None
+    # Checking all fields of the response packet
     if len(pkt) < 13: text = "Invalid packet header length"
     elif ((pkt[0] << 8) + pkt[1]) != MAGIC_NUMBER: text = "Invalid magic number"
     elif ((pkt[2] << 8) + pkt[3]) != RESPONSE_PACKET: text = "Invalid packet type"
@@ -99,13 +100,14 @@ def process_inputs(args):
     Processing the command line arguments
     """
     text = None
+    # Getting inputs from command line arguments
+    request_type = args[0]
+    host = args[1]
+    port = args[2]
     # Checking if there is the correct number of arguments passed
     if len(args) != 3:
         text = "Invalid number of inputs"
     else:
-        request_type = args[0]
-        host = args[1]
-        port = args[2]
         # Checking if the request field is correct
         if request_type != "date" and request_type != "time":
             text = "Invalid request type, request must be either 'date' or 'time'"
@@ -189,6 +191,7 @@ def main():
     request_packet[0:2] = MAGIC_NUMBER.to_bytes(2, "big", signed=False)
     request_packet[2:4] = REQUEST_PACKET.to_bytes(2, "big", signed=False)
     request_packet[4:6] = request.to_bytes(2, "big", signed=False)
+    # Passing the pkt to be sent and then waiting for 1 second for a response from the server
     wait(socket, request_packet, server)
 
 

@@ -31,8 +31,8 @@ GERMAN_CODE = 0x0003
 
 def validate_packet(pkt):
     """
-    Checks that the received packet is valid, exits the program with an error
-    message if the packet is invalid
+    Checking that the received response packet is valid
+    :param pkt: The received response packet
     """
     text = None
     # Checking all fields of the response packet
@@ -56,8 +56,9 @@ def validate_packet(pkt):
 
 def handle_packet(pkt):
     """
-    Handles the response packet once it hs been received
-    from the server
+    Handles the response packet once it has been received by first validating
+    and then printing the contents
+    :param pkt: The received response packet
     """
     # Checking the packet is valid
     validate_packet(pkt)
@@ -68,6 +69,7 @@ def handle_packet(pkt):
         lang = "Maori"
     else:
         lang = "German"
+    # Printing the contents of the response packet
     print("Response from server:")
     print("-----")
     print("Magic number: {0}\nPacket type: {1}".format(hex((pkt[0] << 8) + pkt[1]), RESPONSE_PACKET))
@@ -98,6 +100,8 @@ def handle_packet(pkt):
 def process_inputs(args):
     """
     Processing the command line arguments
+    :param args: The command line arguments
+    :return: the request type, host address and port number
     """
     text = None
     # Getting inputs from command line arguments
@@ -144,7 +148,11 @@ def process_inputs(args):
 
 def wait(socket, pkt, server):
     """
-    Waiting for 1 second for the response from the packet
+    Sending the request packet to the server and then waiting
+    one second for a response
+    :param socket: The clients socket
+    :param pkt: The packet to be sent
+    :param server: The address of the server to send the packet to
     """
     # Sending request packet to the server
     socket.sendto(pkt, server)

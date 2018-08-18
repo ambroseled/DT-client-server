@@ -41,7 +41,8 @@ german_months = ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "
 
 def get_time():
     """
-    Getting the current date and current time
+    Getting the current date and time through a system call
+    :return: A list holding the current date and time
     """
     time = datetime.datetime.now()
     year = time.year
@@ -54,8 +55,12 @@ def get_time():
 
 def textual_date(year, month, day, lang_code):
     """
-    Converting the numerical time into the textual date dependent on
-    the passed language code
+    Creating a textual representation of the date in the desired language
+    :param year: The current year
+    :param month: The current month
+    :param day: The current day
+    :param lang_code: The code fo the language that the text needs to be in
+    :return: The textual representation of the date
     """
     if lang_code == ENGLISH_CODE:
         date_text = "Today's date is {0} {1}, {2}".format(english_months[month-1], day, year)
@@ -68,8 +73,11 @@ def textual_date(year, month, day, lang_code):
 
 def textual_time(hour, minute, lang_code):
     """
-    Converting the numerical time into the textual time dependent on
-    the passed language code
+    Creating a textual representation of the time in the desired language
+    :param hour: The current hour
+    :param minute: The current minute
+    :param lang_code: The code fo the language that the text needs to be in
+    :return: The textual representation of the time
     """
     # If-Else structure is used below for when the minute is between 0 and 9,
     # When this is true a leading zero is added to the minute field
@@ -93,8 +101,10 @@ def textual_time(hour, minute, lang_code):
 
 def process_ports(args):
     """
-    Processes the ports that were passed to the program from the
-    command line
+    Processes the command line arguments to get the three port numbers to
+    be used with the three UDP sockets
+    :param args: The command line arguments
+    :return: A list of the tree port numbers
     """
     text = None
     # Checking the correct number of arguments was passed
@@ -135,8 +145,9 @@ def process_ports(args):
 
 def decode_packet(pkt):
     """
-    Checking if the received packet is valid and returning a
-    corresponding code if it is
+    Checking that the received request packet is valid
+    :param pkt: The received packet
+    :return: 0 if the packet is valid, 1 if the packet is invalid
     """
     text = None
     # Checking if any of the packet fields are invalid
@@ -157,8 +168,10 @@ def decode_packet(pkt):
 
 def get_lang(sock, sockets):
     """
-    Finds out what language the client wants to receive
-    the text in
+    Finds out which language the client wants the textual field in
+    :param sock: The socket that the request was received on
+    :param sockets: A list of all the sockets opened by the server
+    :return: The language code corresponding to the language that the client wants
     """
     if sock == sockets[0]:
         return ENGLISH_CODE
@@ -170,8 +183,11 @@ def get_lang(sock, sockets):
 
 def handle_packet(pkt, lang_code):
     """
-    Decodes received packet and calls makeRespone() to
-    create the response packet
+    Finds out the request type of the received packet
+    :param pkt: The received packet
+    :param lang_code: The language that the client wants the textual
+    field in
+    :return: The response packet ready to be sent made by using makeResponse()
     """
     # Getting the request type of the packet
     request = (pkt[4] << 8) + pkt[5]
@@ -189,7 +205,11 @@ def handle_packet(pkt, lang_code):
 
 def make_response(request_flag, lang_code):
     """
-    Creates a response packet
+    Makes a response packet using the passed parameters
+    :param request_flag: Flag holding if the client wants the date or time
+    :param lang_code: Holds the language that the client wants to receive the
+    textual field in
+    :return: The response packet ready to be sent
     """
     # Getting the textual component of the response
     time = get_time()
@@ -237,9 +257,11 @@ def create_sockets(english_port, maori_port, german_port):
     Opens three UDP sockets and binds them tto the three ports passed
     :param english_port: Port number to be bound to the socket used to get
     a textual representation in English
-    :param maori_port:
-    :param german_port:
-    :return:
+    :param maori_port: Port number to be bound to the socket used to get
+    a textual representation in Maori
+    :param german_port: Port number to be bound to the socket used to get
+    a textual representation in German
+    :return: A list of the three UDP sockets use by the server
     """
     # Opening three UDP sockets
     english_socket = soc.socket(soc.AF_INET, soc.SOCK_DGRAM)

@@ -173,7 +173,9 @@ def wait(socket, pkt, server):
         sys.exit()
     elif len(reads) != 0:
         # Receiving response from the server
-        pkt, address = socket.recvfrom(1024)
+        # Buffer size is 1526 as this is the size of the biggest packet
+        # that can be sent over ethernet
+        pkt, address = socket.recvfrom(1526)
         # Packet has been received from the server
         print("Response packet received from {0}: ".format(address))
         print(pkt)

@@ -291,7 +291,9 @@ def wait(sockets):
         if len(reads) != 0:
             # A request has been received
             for sock in reads:
-                data, address = sock.recvfrom(1024)
+                # Buffer size is 1526 as this is the size of the biggest packet
+                # that can be sent over ethernet
+                data, address = sock.recvfrom(1526)
                 print("-----------------------------")
                 print("Request packet received from {0}: ".format(address))
                 print(data)

@@ -115,6 +115,9 @@ def process_inputs(args):
         # Checking if the request field is correct
         if request_type != "date" and request_type != "time":
             text = "Invalid request type, request must be either 'date' or 'time'"
+            print("*****************************")
+            print(text)
+            print("*****************************")
         else:
             if request_type == "date":
                 request = DATE_REQUEST
@@ -125,18 +128,24 @@ def process_inputs(args):
             port = int(port)
             if port < 1024 or port > 64000:
                 text = "Invalid port, port must be in range 1024 to 64000"
+                print("*****************************")
+                print(text)
+                print("*****************************")
         except ValueError:
             text = "Invalid port type, port must be an integer"
+            print("*****************************")
+            print(text)
+            print("*****************************")
         # Checking if the host field is correct
         try:
             host = soc.gethostbyname(host)
         except soc.gaierror:
             text = "Invalid hostname or IP address"
+            print("*****************************")
+            print(text)
+            print("*****************************")
     if text:
         # Outputting an error message as the arguments are invalid
-        print("*****************************")
-        print(text)
-        print("*****************************")
         # Outputting usage instructions
         print("Usage: python3 client.py request host port")
         print("Program will now exit")

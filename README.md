@@ -1,1 +1,2 @@
-# COSC264-Sockets-Assigment
+# Date-Time Client Server
+

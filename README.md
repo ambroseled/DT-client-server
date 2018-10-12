@@ -22,5 +22,5 @@ A simple UDP based client server which provides the date and time in a chosen la
       * host is a valid IP address or host name
           - Ideally the IP of the machine running server.py
       * port is between `1024` and `64000`
-          - Ideally on of the ports entered when configuring the server
+          - Ideally one of the ports entered when configuring the server
 

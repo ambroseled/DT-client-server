@@ -1,6 +1,6 @@
 # Date-Time Client Server
 
-A simple client server which to provide the date and time in English, Maori and German to the client.
+A simple UDP based client server which provides the date and time in a chosen language to the client. Supported languages are `English, Maori, German`
 
 ## Usage
   - First run `python3 server.py English_port Maori_port German_port`
